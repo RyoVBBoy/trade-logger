@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>トレード反省日記ジェネレーター</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background-color: #1e1e1e;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            color: #ff9100;
+            margin-top: 0;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+        .input-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #aaaaaa;
+            font-size: 0.85rem;
+        }
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #2a2a2a;
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: #ff9100;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff9100;
+            border: none;
+            border-radius: 8px;
+            color: #121212;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #ffab40;
+        }
+        .result-zone {
+            margin-top: 20px;
+            display: none;
+        }
+        #output-text {
+            width: 100%;
+            height: 120px;
+            background-color: #151515;
+            color: #00e676;
+            font-family: monospace;
+            font-size: 0.9rem;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-sizing: border-box;
+            resize: none;
+        }
+        .copy-btn {
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>TRADE LOG GENERATOR</h2>
+    
+    <div class="input-group">
+        <label for="stock-name">銘柄名またはコード</label>
+        <input type="text" id="stock-name" placeholder="例: 出光興産(5019)">
+    </div>
+
+    <div class="input-group">
+        <label for="buy-reason">エントリーした理由（動機）</label>
+        <select id="buy-reason">
+            <option value="25日線からの乖離率が十分大きく、バネが縮んでいたため">25日線からの乖離率（大）</option>
+            <option value="市場全体がパニック売りの地合いであり、連れ安したため">全体パニックによる連れ安</option>
+            <option value="5分足で下落が止まり、短期平均線を上に抜けたため">5分足の反発確認</option>
+            <option value="ルールを無視した感情的な飛びつき（要反省）">感情的な飛びつき（★要反省）</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label for="trade-result">トレード結果</label>
+        <select id="trade-result">
+            <option value="想定通りのリバウンドを捉え、1.5%ラインで利確成功。">🟢 ルール通りの利確</option>
+            <option value="反発せず下値を掘ったが、1.0%ラインで即座に損切り撤退。">🔴 ルール通りの損切り</option>
+            <option value="損切りを躊躇してしまい、想定以上の損失を出した。">⚠️ 損切り遅れ（★猛省）</option>
+            <option value="欲張って利確が遅れ、利益を減らしてしまった。">⚠️ 利確遅れ（★要反省）</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label for="next-action">次回へのマシーン的改善点</label>
+        <textarea id="next-action" rows="2" placeholder="例: 板の厚みをしっかり確認する。"></textarea>
+    </div>
+
+    <button onclick="generateLog()">反省日記を生成</button>
+
+    <div class="result-zone" id="result-zone">
+        <label>📋 生成されたログ（メモ帳用）</label>
+        <textarea id="output-text" readonly></textarea>
+        <button class="copy-btn" onclick="copyLog()">コピーする</button>
+    </div>
+</div>
+
+<script>
+function generateLog() {
+    const stock = document.getElementById('stock-name').value || '未入力';
+    const reason = document.getElementById('buy-reason').value;
+    const result = document.getElementById('trade-result').value;
+    const next = document.getElementById('next-action').value || 'ルールを徹底維持する。';
+
+    // 日付の取得
+    const today = new Date();
+    const dateStr = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate();
+
+    // 日記テキストの組み立て
+    const logText = `【トレード日記】${dateStr}\n■ 銘柄：${stock}\n■ 動機：${reason}\n■ 結果：${result}\n■ 改善：${next}\n--------------------`;
+
+    document.getElementById('output-text').value = logText;
+    document.getElementById('result-zone').style.display = 'block';
+}
+
+function copyLog() {
+    const copyText = document.getElementById('output-text');
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // スマホ対応
+    navigator.clipboard.writeText(copyText.value);
+    alert('クリップボードにコピーしました！');
+}
+</script>
+
+</body>
+</html>
